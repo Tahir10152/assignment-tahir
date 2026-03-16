@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from base_classes import CSVDataHandler
 from ideal_function_selector import FunctionSelector
-from mapping import Test_Mapper
+from mapping import TestMapper
 from db_manager import DatabaseManager
 
 
@@ -29,7 +29,7 @@ def test_mapper_no_mappings():
     test_df = pd.DataFrame({'x': [100, 200], 'y': [1000, 2000]})
     selected = {1:1,2:2,3:3,4:4}
     max_devs = {1:0.1,2:0.1,3:0.1,4:0.1}
-    mapper = Test_Mapper(test_df, ideal, selected, max_devs)
+    mapper = TestMapper(test_df, ideal, selected, max_devs)
     mappings = mapper.map_all_test_points()
     assert mappings.empty
 

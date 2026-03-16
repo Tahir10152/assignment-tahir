@@ -14,9 +14,9 @@ class Visualizer:
 		colors = ['red', 'blue', 'green', 'orange']
 		plots = []
 
-		for train_num in range(1, 5):
+		for trainNumber in range(1, 5):
 			p = figure(
-				title=f"Training Function {train_num} vs Ideal Function {selected_functions[train_num]}",
+				title=f"Training Function {trainNumber} vs Ideal Function {selected_functions[trainNumber]}",
 				x_axis_label='X',
 				y_axis_label='Y',
 				width=500,
@@ -26,21 +26,21 @@ class Visualizer:
 
 			p.scatter(
 				training_data['x'],
-				training_data[f'y{train_num}'],
+				training_data[f'y{trainNumber}'],
 				size=6,
-				color=colors[train_num - 1],
+				color=colors[trainNumber - 1],
 				alpha=0.6,
-				legend_label=f'Training {train_num}'
+				legend_label=f'Training {trainNumber}'
 			)
 
-			ideal_num = selected_functions[train_num]
+			idealNumber = selected_functions[trainNumber]
 			p.line(
 				ideal_functions['x'],
-				ideal_functions[f'y{ideal_num}'],
+				ideal_functions[f'y{idealNumber}'],
 				line_width=2,
 				color='black',
 				alpha=0.8,
-				legend_label=f'Ideal {ideal_num}'
+				legend_label=f'Ideal {idealNumber}'
 			)
 
 			p.legend.location = "top_left"
@@ -67,26 +67,26 @@ class Visualizer:
 			selected_functions[4]: 'orange'
 		}
 
-		for train_num, ideal_num in selected_functions.items():
+		for trainNumber, idealNumber in selected_functions.items():
 			p.line(
 				ideal_functions['x'],
-				ideal_functions[f'y{ideal_num}'],
+				ideal_functions[f'y{idealNumber}'],
 				line_width=2,
-				color=colors_map[ideal_num],
+				color=colors_map[idealNumber],
 				alpha=0.5,
-				legend_label=f'Ideal Function {ideal_num}'
+				legend_label=f'Ideal Function {idealNumber}'
 			)
 
 		if not mappings.empty:
-			for ideal_num in mappings['ideal_func_no'].unique():
-				subset = mappings[mappings['ideal_func_no'] == ideal_num]
+			for idealNumber in mappings['ideal_function_index'].unique():
+				subset = mappings[mappings['ideal_function_index'] == idealNumber]
 				p.scatter(
 					subset['x'],
 					subset['y'],
 					size=8,
-					color=colors_map[ideal_num],
+					color=colors_map[idealNumber],
 					alpha=0.8,
-					legend_label=f'Test → Ideal {ideal_num}'
+					legend_label=f'Test → Ideal {idealNumber}'
 				)
 
 		hover = HoverTool(
@@ -127,28 +127,28 @@ class Visualizer:
 			selected_functions[4]: 'orange'
 		}
 
-		for ideal_num in mappings['ideal_func_no'].unique():
-			subset = mappings[mappings['ideal_func_no'] == ideal_num]
+		for idealNumber in mappings['ideal_function_index'].unique():
+			subset = mappings[mappings['ideal_function_index'] == idealNumber]
 
 			p.scatter(
 				subset['x'],
-				subset['delta_y'],
+				subset['deviation'],
 				size=6,
-				color=colors_map[ideal_num],
+				color=colors_map[idealNumber],
 				alpha=0.6,
-				legend_label=f'Ideal {ideal_num}'
+				legend_label=f'Ideal {idealNumber}'
 			)
 
-		for train_num, ideal_num in selected_functions.items():
-			threshold = max_deviations[train_num] * np.sqrt(2)
+		for trainNumber, idealNumber in selected_functions.items():
+			threshold = max_deviations[trainNumber] * np.sqrt(2)
 			p.line(
 				[mappings['x'].min(), mappings['x'].max()],
 				[threshold, threshold],
 				line_width=2,
 				line_dash='dashed',
-				color=colors_map[ideal_num],
+				color=colors_map[idealNumber],
 				alpha=0.5,
-				legend_label=f'Threshold {ideal_num}'
+				legend_label=f'Threshold {idealNumber}'
 			)
 
 		p.legend.location = "top_right"
@@ -213,10 +213,10 @@ class Visualizer:
 			ax = axes[i - 1]
 			if f'y{i}' in training_data.columns:
 				ax.scatter(training_data['x'], training_data[f'y{i}'], s=8, color=colors[i - 1], alpha=0.6)
-			ideal_num = selected_functions.get(i)
-			if ideal_num and f'y{ideal_num}' in ideal_functions.columns:
-				ax.plot(x_ideal, ideal_functions[f'y{ideal_num}'].values, color='k', linewidth=1.5)
-			ax.set_title(f'Train y{i} vs Ideal {ideal_num}')
+			idealNumber = selected_functions.get(i)
+			if idealNumber and f'y{idealNumber}' in ideal_functions.columns:
+				ax.plot(x_ideal, ideal_functions[f'y{idealNumber}'].values, color='k', linewidth=1.5)
+			ax.set_title(f'Train y{i} vs Ideal {idealNumber}')
 			ax.set_xlabel('x')
 			ax.set_ylabel('y')
 
@@ -228,7 +228,7 @@ class Visualizer:
 		# Mappings plot
 		fig, ax = plt.subplots(figsize=(8, 6))
 		if mappings is not None and not mappings.empty:
-			sc = ax.scatter(mappings['x'], mappings['y'], c=mappings['ideal_func_no'], cmap='tab10', s=20)
+			sc = ax.scatter(mappings['x'], mappings['y'], c=mappings['ideal_function_index'], cmap='tab10', s=20)
 			fig.colorbar(sc, ax=ax, label='Ideal Function')
 		else:
 			ax.text(0.5, 0.5, 'No mappings', ha='center')

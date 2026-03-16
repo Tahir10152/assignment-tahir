@@ -36,11 +36,11 @@ class TestMapping(Base):
 	id = Column(Integer, primary_key=True, autoincrement=True)
 	x = Column(Float, nullable=False)
 	y = Column(Float, nullable=False)
-	delta_y = Column(Float, nullable=False)
-	ideal_func_no = Column(Integer, nullable=False)
+	deviation = Column(Float, nullable=False)
+	ideal_function_index = Column(Integer, nullable=False)
 
 	def __repr__(self):
-		return f"<TestMapping(x={self.x}, y={self.y}, func={self.ideal_func_no})>"
+		return f"<TestMapping(x={self.x}, y={self.y}, func={self.ideal_function_index})>"
 
 
 class DatabaseManager:
@@ -75,9 +75,9 @@ class DatabaseManager:
 		except Exception as e:
 			raise DatabaseError(f"Failed to insert ideal functions: {str(e)}")
 
-	def insert_test_mapping(self, x, y, delta_y, ideal_func_no):
+	def insert_test_mapping(self, x, y, deviation, ideal_function_index):
 		try:
-			mapping = TestMapping(x=x, y=y, delta_y=delta_y, ideal_func_no=ideal_func_no)
+			mapping = TestMapping(x=x, y=y, deviation=deviation, ideal_function_index=ideal_function_index)
 			self.session.add(mapping)
 			self.session.commit()
 		except Exception as e:
