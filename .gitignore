@@ -1,0 +1,7 @@
+.venv/
+assignment_visualizations.html
+visuals/
+db/*.csv
+__pycache__/
+.pytest_cache/
+tahirTask.code-workspace
