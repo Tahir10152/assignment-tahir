@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from exceptions import DataMappingError
 
-class Test_Mapper:
+class TestMapper:
     def __init__(self, test_data, ideal_functions, selected_functions, max_deviations):
         self.test_data = test_data
         self.ideal_functions = ideal_functions
@@ -12,9 +12,9 @@ class Test_Mapper:
         self.mappings = []
         self.sqrt2 = np.sqrt(2)
 
-    def interpolate_ideal_value(self, x_test, ideal_func_num):
+    def interpolate_ideal_value(self, x_test, ideal_function_index):
         x_ideal = self.ideal_functions['x'].values
-        y_ideal = self.ideal_functions[f'y{ideal_func_num}'].values
+        y_ideal = self.ideal_functions[f'y{ideal_function_index}'].values
 
         interpolator = interp1d(
             x_ideal,
@@ -31,14 +31,14 @@ class Test_Mapper:
         best_deviation = None
         smallest_deviation = float('inf')
 
-        for train_num, ideal_num in self.selected_functions.items():
-            y_ideal = self.interpolate_ideal_value(x_test, ideal_num)
+        for trainNumber, idealNumber in self.selected_functions.items():
+            y_ideal = self.interpolate_ideal_value(x_test, idealNumber)
             deviation = abs(y_test - y_ideal)
-            threshold = self.max_deviations[train_num] * self.sqrt2
+            threshold = self.max_deviations[trainNumber] * self.sqrt2
             if deviation <= threshold:
                 if deviation < smallest_deviation:
                     smallest_deviation = deviation
-                    best_match = ideal_num
+                    best_match = idealNumber
                     best_deviation = deviation
 
         return best_match, best_deviation
@@ -63,8 +63,8 @@ class Test_Mapper:
                 self.mappings.append({
                     'x': x_test,
                     'y': y_test,
-                    'delta_y': deviation,
-                    'ideal_func_no': ideal_func
+                    'deviation': deviation,
+                    'ideal_function_index': ideal_func
                 })
                 mapped_count += 1
             else:
@@ -78,7 +78,7 @@ class Test_Mapper:
             mappings_df = pd.DataFrame(self.mappings)
             return mappings_df
         else:
-            return pd.DataFrame(columns=['x', 'y', 'delta_y', 'ideal_func_no'])
+            return pd.DataFrame(columns=['x', 'y', 'deviation', 'ideal_function_index'])
 
     def get_mappings(self):
         if not self.mappings:
@@ -98,7 +98,7 @@ class Test_Mapper:
         total = len(self.test_data)
         mapped = len(mappings_df)
 
-        mappings_per_func = mappings_df['ideal_func_no'].value_counts().to_dict()
+        mappings_per_func = mappings_df['ideal_function_index'].value_counts().to_dict()
 
         return {
             'total_test_points': total,
@@ -106,7 +106,7 @@ class Test_Mapper:
             'unmapped_points': total - mapped,
             'mapping_rate': (mapped / total) * 100,
             'mappings_per_function': mappings_per_func,
-            'avg_deviation': mappings_df['delta_y'].mean(),
-            'max_deviation': mappings_df['delta_y'].max(),
-            'min_deviation': mappings_df['delta_y'].min()
+            'avg_deviation': mappings_df['deviation'].mean(),
+            'max_deviation': mappings_df['deviation'].max(),
+            'min_deviation': mappings_df['deviation'].min()
         }

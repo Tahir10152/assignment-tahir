@@ -54,11 +54,11 @@ class FunctionSelector:
 		print("SELECTING IDEAL FUNCTIONS (LEAST SQUARES METHOD)")
 		print("=" * 60)
 
-		for train_num in range(1, 5):
-			print(f"\nAnalyzing Training Function {train_num}...")
-			best_ideal, min_sum_sq, max_dev = self.find_best_ideal_function(train_num)
-			self.selected_functions[train_num] = best_ideal
-			self.max_deviations[train_num] = max_dev
+		for trainNumber in range(1, 5):
+			print(f"\nAnalyzing Training Function {trainNumber}...")
+			best_ideal, min_sum_sq, max_dev = self.find_best_ideal_function(trainNumber)
+			self.selected_functions[trainNumber] = best_ideal
+			self.max_deviations[trainNumber] = max_dev
 			print(f"  ✓ Best match: Ideal Function {best_ideal}")
 			print(f"    Sum of Squares: {min_sum_sq:.4f}")
 			print(f"    Max Deviation: {max_dev:.4f}")
@@ -86,14 +86,14 @@ class FunctionSelector:
 			raise FunctionSelectionError("No functions selected yet.")
 
 		selected_cols = ['x']
-		for train_num, ideal_num in self.selected_functions.items():
-			selected_cols.append(f'y{ideal_num}')
+		for trainNumber, idealNumber in self.selected_functions.items():
+			selected_cols.append(f'y{idealNumber}')
 
 		selected_df = self.ideal_functions[selected_cols].copy()
 
 		new_names = {'x': 'x'}
-		for train_num, ideal_num in self.selected_functions.items():
-			new_names[f'y{ideal_num}'] = f'ideal_func_{train_num}'
+		for trainNumber, idealNumber in self.selected_functions.items():
+			new_names[f'y{idealNumber}'] = f'ideal_func_{trainNumber}'
 
 		selected_df.rename(columns=new_names, inplace=True)
 		return selected_df

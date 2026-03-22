@@ -3,7 +3,7 @@ import pandas as pd
 
 from base_classes import CSVDataHandler
 from ideal_function_selector import FunctionSelector
-from mapping import Test_Mapper
+from mapping import TestMapper
 
 
 def test_csvhandler_load_and_validate(tmp_path):
@@ -62,10 +62,10 @@ def test_simplemapper_map_all():
     selected = {1: 1, 2: 2, 3: 3, 4: 4}
     max_devs = {1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0}
 
-    mapper = Test_Mapper(test_df, ideal, selected, max_devs)
+    mapper = TestMapper(test_df, ideal, selected, max_devs)
     mappings = mapper.map_all_test_points()
 
     # mappings should have expected columns (may be empty)
-    assert all(col in mappings.columns for col in ["x", "y", "delta_y", "ideal_func_no"]) or mappings.empty
+    assert all(col in mappings.columns for col in ["x", "y", "deviation", "ideal_function_index"]) or mappings.empty
     if not mappings.empty:
-        assert (mappings["delta_y"] >= 0).all()
+        assert (mappings["deviation"] >= 0).all()
