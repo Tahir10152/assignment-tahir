@@ -86,12 +86,16 @@ class DatabaseManager:
 
 	def insert_test_mappings_bulk(self, mappings_df):
 		try:
-			self.session.query(TestMapping).delete()
-			self.session.commit()
-			mappings_df.to_sql('test_mappings', self.engine, if_exists='append', index=False)
-			print(f"Inserted {len(mappings_df)} test mappings")
+			# Replace the test_mappings table to ensure its schema matches the
+			# current DataFrame columns (e.g. 'deviation', 'ideal_function_index').
+			# Using `if_exists='replace'` drops the existing table and recreates it
+			# based on the DataFrame, avoiding "no column named ..." errors when
+			# the on-disk schema is out of sync with the code.
+			mappings_df.to_sql('test_mappings', self.engine, if_exists='replace', index=False)
+			print(f"Inserted {len(mappings_df)} test mappings (table replaced)")
 		except Exception as e:
-			self.session.rollback()
+			# Session rollback not needed for to_sql operations, but keep a clear
+			# error for the caller.
 			raise DatabaseError(f"Failed to insert test mappings: {str(e)}")
 
 	def get_training_data(self):
