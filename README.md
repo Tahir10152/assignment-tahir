@@ -1,4 +1,4 @@
-﻿# Assignment Python
+# Assignment Python
 
 Overview
 
@@ -11,6 +11,12 @@ Prerequisites
 
 - Python 3.8+
 - Install dependencies:
+ * Numpy
+ * Pandas
+ * sqlalchamy
+ * bokeh
+ * 
+
 
 ```bash
 python -m venv .venv
