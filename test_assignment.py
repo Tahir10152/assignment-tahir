@@ -1,71 +1,133 @@
 import numpy as np
 import pandas as pd
 
-from classes import CSVDataHandler
-from ideal_function_selector import FunctionSelector
-from mapping import TestMapper
+# Updated imports to match renamed classes
+from classes import CSVLoader
+from ideal_function_selector import IdealFunctionMatcher
+from mapping import PointMapper
 
 
-def test_csvhandler_load_and_validate(tmp_path):
-    p = tmp_path / "sample.csv"
-    df = pd.DataFrame({"x": [1, 2, 3], "y": [2, 4, 6]})
-    df.to_csv(p, index=False)
+def test_csvloader_load_and_validate(tmp_path):
+    """
+    Tests that CSVLoader can load a CSV file correctly
+    and that validate_data() confirms required columns exist.
+    """
+    # Create a temporary CSV file path inside the pytest temp directory
+    temporary_file_path = tmp_path / "sample.csv"
 
-    handler = CSVDataHandler(str(p))
-    loaded = handler.load_data()
-    assert len(loaded) == 3
-    assert "x" in loaded.columns and "y" in loaded.columns
+    # Build a small sample DataFrame to write into the temp CSV file
+    sample_dataframe = pd.DataFrame({"x": [1, 2, 3], "y": [2, 4, 6]})
+    sample_dataframe.to_csv(temporary_file_path, index=False)
 
-    # validation with required columns
-    assert handler.validate_data(["x", "y"]) is True
-    assert handler.data.equals(loaded)
+    # Create a CSVLoader instance pointing to the temporary file
+    csv_handler = CSVLoader(str(temporary_file_path))
+
+    # Load the data and store the result for assertions
+    loaded_dataframe = csv_handler.load_data()
+
+    # Check that the correct number of rows was loaded
+    assert len(loaded_dataframe) == 3
+
+    # Check that both expected columns are present in the loaded data
+    assert "x" in loaded_dataframe.columns and "y" in loaded_dataframe.columns
+
+    # Validate that the required columns pass the validation check
+    assert csv_handler.validate_data(["x", "y"]) is True
+
+    # Make sure the internally stored data matches what was returned by load_data
+    assert csv_handler.loaded_data.equals(loaded_dataframe)
 
 
-def test_functionmatcher_basic():
-    x = np.linspace(0, 1, 5)
-    training = pd.DataFrame({
-        "x": x,
-        "y1": 2 * x,
-        "y2": 3 * x,
-        "y3": -x,
-        "y4": 0 * x,
+def test_idealfunctionmatcher_basic():
+    """
+    Tests that IdealFunctionMatcher correctly selects one ideal function
+    per training function and returns a valid dictionary of matches.
+    """
+    # Create evenly spaced x values to use across training and ideal datasets
+    x_values = np.linspace(0, 1, 5)
+
+    # Build a simple training dataset with 4 known mathematical functions
+    training_dataframe = pd.DataFrame({
+        "x":  x_values,
+        "y1": 2 * x_values,
+        "y2": 3 * x_values,
+        "y3": -x_values,
+        "y4": 0 * x_values,
     })
 
-    ideal = pd.DataFrame({"x": x})
-    ideal["y1"] = 2 * x
-    ideal["y2"] = 3 * x
-    ideal["y3"] = -x
-    ideal["y4"] = 0 * x
+    # Build the ideal dataset starting with just the x column
+    ideal_dataframe = pd.DataFrame({"x": x_values})
 
-    # add extra ideal cols
-    for i in range(5, 11):
-        ideal[f"y{i}"] = np.random.randn(len(x))
+    # Add the same 4 functions as in training so perfect matches exist
+    ideal_dataframe["y1"] = 2 * x_values
+    ideal_dataframe["y2"] = 3 * x_values
+    ideal_dataframe["y3"] = -x_values
+    ideal_dataframe["y4"] = 0 * x_values
 
-    matcher = FunctionSelector(training, ideal)
-    selected = matcher.select_all_functions()
+    # Add extra random columns to make the selection process non-trivial
+    for column_index in range(5, 11):
+        ideal_dataframe[f"y{column_index}"] = np.random.randn(len(x_values))
 
-    assert isinstance(selected, dict)
-    assert len(selected) == 4
-    assert all(isinstance(v, int) for v in selected.values())
+    # Create the matcher using the training and ideal datasets
+    function_matcher = IdealFunctionMatcher(training_dataframe, ideal_dataframe)
+
+    # Run the full selection and store the result
+    selected_functions = function_matcher.run_selection()
+
+    # Result must be a dictionary
+    assert isinstance(selected_functions, dict)
+
+    # There must be exactly 4 entries — one per training function
+    assert len(selected_functions) == 4
+
+    # Every matched ideal function index must be an integer
+    assert all(isinstance(ideal_index, int) for ideal_index in selected_functions.values())
 
 
-def test_simplemapper_map_all():
-    x = np.linspace(0, 10, 11)
-    ideal = pd.DataFrame({"x": x})
-    ideal["y1"] = x
-    ideal["y2"] = 2 * x
-    for i in range(3, 6):
-        ideal[f"y{i}"] = np.random.randn(len(x))
+def test_pointmapper_map_all():
+    """
+    Tests that PointMapper processes all test points and returns a DataFrame
+    with the correct columns and non-negative deviations.
+    """
+    # Create evenly spaced x values for the ideal functions dataset
+    x_values = np.linspace(0, 10, 11)
 
-    test_df = pd.DataFrame({"x": [2.0, 5.0, 8.0], "y": [2.1, 10.1, 15.9]})
+    # Build the ideal dataset with two predictable functions and some random ones
+    ideal_dataframe = pd.DataFrame({"x": x_values})
+    ideal_dataframe["y1"] = x_values
+    ideal_dataframe["y2"] = 2 * x_values
 
-    selected = {1: 1, 2: 2, 3: 3, 4: 4}
-    max_devs = {1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0}
+    # Fill remaining columns with random data to simulate a real ideal dataset
+    for column_index in range(3, 6):
+        ideal_dataframe[f"y{column_index}"] = np.random.randn(len(x_values))
 
-    mapper = TestMapper(test_df, ideal, selected, max_devs)
-    mappings = mapper.map_all_test_points()
+    # Create a small test dataset with points that should map close to y1 and y2
+    test_dataframe = pd.DataFrame({"x": [2.0, 5.0, 8.0], "y": [2.1, 10.1, 15.9]})
 
-    # mappings should have expected columns (may be empty)
-    assert all(col in mappings.columns for col in ["x", "y", "deviation", "ideal_function_index"]) or mappings.empty
-    if not mappings.empty:
-        assert (mappings["deviation"] >= 0).all()
+    # Map each training function index to its matched ideal function index
+    matched_functions_dictionary = {1: 1, 2: 2, 3: 3, 4: 4}
+
+    # Set the maximum allowed deviation for each training function
+    maximum_deviations_dictionary = {1: 0.5, 2: 0.5, 3: 1.0, 4: 1.0}
+
+    # Create the mapper with all required inputs
+    point_mapper = PointMapper(
+        test_dataframe,
+        ideal_dataframe,
+        matched_functions_dictionary,
+        maximum_deviations_dictionary
+    )
+
+    # Run the mapping process and store the resulting DataFrame
+    mapping_results_dataframe = point_mapper.map_all_test_points()
+
+    # The result must contain all four expected columns, or be empty if nothing matched
+    expected_columns = ["x", "y", "deviation", "ideal_function_index"]
+    assert all(
+        column_name in mapping_results_dataframe.columns
+        for column_name in expected_columns
+    ) or mapping_results_dataframe.empty
+
+    # Every deviation value must be zero or positive — never negative
+    if not mapping_results_dataframe.empty:
+        assert (mapping_results_dataframe["deviation"] >= 0).all()

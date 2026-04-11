@@ -4,7 +4,7 @@ def header_style(command, min_count=50, max_count=55):
 
     random_number = random.randint(min_count, max_count)
 
-    print("\n" + "-_" * random_number)
+    print("\n" + "=" * random_number)
     print(f"  {command}")
-    print("-_" * random_number)
+    print("=" * random_number)
 
