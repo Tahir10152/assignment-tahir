@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Float, Integer, String, Table, Met
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
-from exceptions import DatabaseError
+from exception_classes import DatabaseError
 
 Base = declarative_base()
 

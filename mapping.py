@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-from exceptions import DataMappingError
+from exception_classes import DataMappingError
 
 class TestMapper:
     def __init__(self, test_data, ideal_functions, selected_functions, max_deviations):

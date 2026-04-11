@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from exceptions import FunctionSelectionError
+from exception_classes import FunctionSelectionError
 
 
 class FunctionSelector:

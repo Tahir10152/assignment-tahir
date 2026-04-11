@@ -1,10 +1,10 @@
 import pytest
 import pandas as pd
 import numpy as np
-from base_classes import CSVDataHandler
+from classes import CSVDataHandler
 from ideal_function_selector import FunctionSelector
 from mapping import TestMapper
-from db_manager import DatabaseManager
+from database import DatabaseManager
 
 
 def test_csv_handler_missing_file(tmp_path):

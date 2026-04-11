@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from base_classes import CSVDataHandler
+from classes import CSVDataHandler
 from ideal_function_selector import FunctionSelector
 from mapping import TestMapper
 
