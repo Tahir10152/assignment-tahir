@@ -16,3 +16,7 @@ class FunctionSelectionError(Exception):
 class DataMappingError(Exception):
 	"""Raised during test -> ideal mapping operations."""
 	pass
+
+class MissingColumnsError(Exception):
+	"""Raised for column when input data's column is missing or invalid."""
+	pass
