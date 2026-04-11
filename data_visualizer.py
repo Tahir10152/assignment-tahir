@@ -11,7 +11,7 @@ class Visualizer:
 		self.plots = []
 
 	def plot_training_and_ideal(self, training_data, ideal_functions, selected_functions):
-		colors = ['red', 'blue', 'green', 'orange']
+		colors = ['pink', 'black', 'blue', 'red']
 		plots = []
 
 		for trainNumber in range(1, 5):
