@@ -1,9 +1,9 @@
 import pandas as pd
-from base_classes import CSVDataHandler
+from classes import CSVDataHandler
 from ideal_function_selector import FunctionSelector
 from mapping import TestMapper
 from data_visualizer import Visualizer
-from db_manager import DatabaseManager
+from database import DatabaseManager
 
 
 def run_pipeline():
