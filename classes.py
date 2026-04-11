@@ -1,5 +1,5 @@
 import pandas as pd
-from  import DataValidationError, MissingColumnsError
+from exception_classes import DataValidationError, MissingColumnsError
 
 
 class DataHandler:
